@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sekuya:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="frontend.css" />
+    <title>Cadastro</title>
+  </head>
+  <body>
+    <style>
+      body {
+        background-color: #77dd77;
+        color: #333;
+        background: url("../img/image.png") no-repeat center center fixed;
+        background-size: cover;
+      }
+    </style>
+    <div class="container">
+      <h1>Formulário de Cadastro</h1>
+    <form action="cadastro.php" method="POST">
+      <p>
+        <label for="nome">nome:</label>
+      </p>
+      <p>
+        <input
+          type="text"
+          placeholder="Digite seu nome completo"
+          name="nome"
+          id="nome"
+          required
+          minlength="30"
+          maxlength="100"
+        />
+      </p>
+      <p><label for="senha">senha:</label></p>
+      <p>
+        <input
+          type="password"
+          placeholder="Digite sua senha (8 caracteres)"
+          name="senha"
+          id="senha"
+          required
+          minlength="6"
+          maxlength="8"
+        />
+      </p>
+      <p><label for="email">email:</label></p>
+      <p>
+        <input type="email" name="email" id="email" required minlength="10" placeholder="Digite seu email" />
+      </p>
+      <p>
+        <input type="submit" value="enviar" />
+        <input type="reset" value="limpar" />
+      </p>
+    </form>
+  </body>
+  <footer>
+    <p> VOLTAR A PG INICIAL:  <a href="../index.html">
+      Clique aqui</a></p>
+  </footer>
+</html>

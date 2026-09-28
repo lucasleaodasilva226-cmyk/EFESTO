@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Controle de Estoque</title>
+    <style>
+      :root {
+        --bg: #f4f6fb;
+        --card: #fff;
+        --text: #1c1f26;
+        --border: #3b5bdb;
+        --th: #dfe6f5;
+        --danger: #d9364a;
+        --ok: #2f7a3d;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #14161c;
+          --card: #1c1f26;
+          --text: #eef0f4;
+          --th: #2a3350;
+          --border: #5a7bff;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #14161c;
+        --card: #1c1f26;
+        --text: #eef0f4;
+        --th: #2a3350;
+        --border: #5a7bff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Courier New", Courier, monospace;
+        padding: 16px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      h3 {
+        margin-top: 0;
+      }
+      .card {
+        background: var(--card);
+        border: solid var(--border) 2px;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      .campo {
+        margin-bottom: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+      .campo label {
+        width: 120px;
+      }
+      input,
+      select,
+      button {
+        font-family: inherit;
+        padding: 6px;
+      }
+      button {
+        cursor: pointer;
+      }
+      .tabela-wrap {
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 12px;
+        min-width: 480px;
+      }
+      th,
+      td {
+        border: 1px solid var(--border);
+        padding: 6px 10px;
+        text-align: left;
+        vertical-align: middle;
+      }
+      th {
+        background: var(--th);
+      }
+      img {
+        max-width: 50px;
+        max-height: 50px;
+        border-radius: 4px;
+      }
+      .remover {
+        cursor: pointer;
+        color: var(--danger);
+        border: none;
+        background: none;
+        font-weight: bold;
+      }
+      .aviso {
+        color: var(--danger);
+        font-size: 13px;
+      }
+      tr.baixo {
+        background: rgba(217, 54, 74, 0.15);
+      }
+      .badge-baixo {
+        color: var(--danger);
+        font-weight: bold;
+      }
+      .badge-ok {
+        color: var(--ok);
+      }
+      canvas {
+        max-width: 100%;
+        background: transparent;
+      }
+      .entrada {
+        color: var(--ok);
+      }
+      .saida {
+        color: var(--danger);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navegação">
+      <nav>
+        <ul>
+          <li><a href="/index.html"></a>inicio</li>
+        </ul>
+      </nav>
+    </div>
+    <h1>EFESTO</h1>
+
+    <div class="card">
+      <h3>Cadastrar produto</h3>
+      <div class="campo">
+        <label>Nome:</label><input id="p-nome" placeholder="Ex: Parafuso 5mm" />
+      </div>
+      <div class="campo">
+        <label>SKU (opcional):</label
+        ><input id="p-sku" placeholder="Ex: PRF-005" />
+      </div>
+      <div class="campo">
+        <label>Foto:</label><input id="p-foto" type="file" accept="image/*" />
+      </div>
+      <div class="campo">
+        <label>Qtd. inicial:</label
+        ><input id="p-qtd" type="number" min="0" value="0" />
+      </div>
+      <div class="campo">
+        <label>Estoque mínimo:</label
+        ><input id="p-min" type="number" min="0" value="0" />
+      </div>
+      <button id="btnAddProduto">Adicionar produto</button>
+
+      <div class="campo" style="margin-top: 12px">
+        <input
+          id="busca"
+          placeholder="🔍 Buscar por nome ou SKU..."
+          style="flex: 1; min-width: 200px"
+        />
+        <label style="width: auto"
+          ><input type="checkbox" id="soBaixo" /> só estoque baixo</label
+        >
+      </div>
+
+      <div class="tabela-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nome</th>
+              <th>SKU</th>
+              <th>Estoque</th>
+              <th>Mínimo</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabela-produtos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Registrar movimentação</h3>
+      <div class="campo">
+        <label>Produto:</label
+        ><select id="m-produto">
+          <option value="">-- selecione --</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Tipo:</label>
+        <select id="m-tipo">
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Quantidade:</label
+        ><input id="m-qtd" type="number" min="1" value="1" />
+      </div>
+      <div class="campo">
+        <label>Data:</label><input id="m-data" type="date" />
+      </div>
+      <button id="btnMov">Registrar</button>
+      <p class="aviso" id="avisoMov"></p>
+
+      <div class="tabela-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Produto</th>
+              <th>Tipo</th>
+              <th>Quantidade</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tabela-mov"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Estoque por produto (vermelho = abaixo do mínimo)</h3>
+      <canvas id="grafico" height="220"></canvas>
+    </div>
+
+    <script>
+      const K_PROD = "produtosEstoqueV2",
+        K_MOV = "movimentosEstoque";
+      const get = (k) => {
+        try {
+          return JSON.parse(localStorage.getItem(k)) || [];
+        } catch (e) {
+          return [];
+        }
+      };
+      const set = (k, v) => {
+        try {
+          localStorage.setItem(k, JSON.stringify(v));
+        } catch (e) {}
+      };
+
+      function renderProdutos() {
+        const produtos = get(K_PROD);
+        const tb = document.getElementById("tabela-produtos");
+        tb.innerHTML = "";
+
+        const termo = document
+          .getElementById("busca")
+          .value.toLowerCase()
+          .trim();
+        const soBaixo = document.getElementById("soBaixo").checked;
+
+        produtos.forEach((p, i) => {
+          const baixo = p.qtd < p.minimo;
+          if (
+            termo &&
+            !(
+              p.nome.toLowerCase().includes(termo) ||
+              (p.sku || "").toLowerCase().includes(termo)
+            )
+          )
+            return;
+          if (soBaixo && !baixo) return;
+
+          const tr = document.createElement("tr");
+          if (baixo) tr.className = "baixo";
+          tr.innerHTML = `<td>${p.foto ? `<img src="${p.foto}">` : "—"}</td>
+            <td>${p.nome}</td><td>${p.sku || "—"}</td><td>${p.qtd}</td><td>${p.minimo}</td>
+            <td class="${baixo ? "badge-baixo" : "badge-ok"}">${baixo ? "⚠ Baixo" : "OK"}</td>
+            <td><button class="remover" data-i="${i}">X</button></td>`;
+          tb.appendChild(tr);
+        });
+
+        tb.querySelectorAll(".remover").forEach(
+          (btn) =>
+            (btn.onclick = () => {
+              const ps = get(K_PROD);
+              ps.splice(btn.dataset.i, 1);
+              set(K_PROD, ps);
+              renderProdutos();
+            }),
+        );
+        renderSelect();
+        renderGrafico();
+      }
+
+      function renderSelect() {
+        const produtos = get(K_PROD);
+        const sel = document.getElementById("m-produto");
+        const atual = sel.value;
+        sel.innerHTML = '<option value="">-- selecione --</option>';
+        produtos.forEach((p, i) => {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = `${p.nome}${p.sku ? " (" + p.sku + ")" : ""}`;
+          sel.appendChild(opt);
+        });
+        sel.value = atual;
+      }
+
+      document.getElementById("btnAddProduto").onclick = () => {
+        const nome = document.getElementById("p-nome").value.trim();
+        const sku = document.getElementById("p-sku").value.trim();
+        const qtd = parseInt(document.getElementById("p-qtd").value, 10);
+        const minimo = parseInt(document.getElementById("p-min").value, 10);
+        const fotoInput = document.getElementById("p-foto");
+        if (!nome || isNaN(qtd) || isNaN(minimo))
+          return alert("Preencha nome, quantidade e mínimo.");
+        function salvar(foto) {
+          const ps = get(K_PROD);
+          ps.push({ nome, sku, foto: foto || null, qtd, minimo });
+          set(K_PROD, ps);
+          document.getElementById("p-nome").value = "";
+          document.getElementById("p-sku").value = "";
+          document.getElementById("p-qtd").value = "0";
+          document.getElementById("p-min").value = "0";
+          fotoInput.value = "";
+          renderProdutos();
+        }
+        if (fotoInput.files && fotoInput.files[0]) {
+          const r = new FileReader();
+          r.onload = (e) => salvar(e.target.result);
+          r.readAsDataURL(fotoInput.files[0]);
+        } else salvar(null);
+      };
+
+      function renderMov() {
+        const movs = get(K_MOV).sort(
+          (a, b) => new Date(a.data) - new Date(b.data),
+        );
+        const produtos = get(K_PROD);
+        const tb = document.getElementById("tabela-mov");
+        tb.innerHTML = "";
+        movs.forEach((m, i) => {
+          const nome = produtos[m.produtoIdx]
+            ? produtos[m.produtoIdx].nome
+            : "(removido)";
+          tb.innerHTML += `<tr><td>${m.data}</td><td>${nome}</td>
+            <td class="${m.tipo}">${m.tipo === "entrada" ? "⬆ Entrada" : "⬇ Saída"}</td>
+            <td>${m.qtd}</td><td><button class="remover" data-i="${i}">X</button></td></tr>`;
+        });
+        tb.querySelectorAll(".remover").forEach(
+          (btn) =>
+            (btn.onclick = () => {
+              const ms = get(K_MOV).sort(
+                (a, b) => new Date(a.data) - new Date(b.data),
+              );
+              ms.splice(btn.dataset.i, 1);
+              set(K_MOV, ms);
+              renderMov();
+            }),
+        );
+      }
+
+      document.getElementById("btnMov").onclick = () => {
+        const aviso = document.getElementById("avisoMov");
+        aviso.textContent = "";
+        const idx = document.getElementById("m-produto").value;
+        const tipo = document.getElementById("m-tipo").value;
+        const qtd = parseInt(document.getElementById("m-qtd").value, 10);
+        const data = document.getElementById("m-data").value;
+        if (idx === "" || isNaN(qtd) || qtd < 1 || !data) {
+          aviso.textContent = "Preencha produto, quantidade e data.";
+          return;
+        }
+        const produtos = get(K_PROD);
+        const p = produtos[idx];
+        if (tipo === "saida" && qtd > p.qtd) {
+          aviso.textContent = `Estoque insuficiente (disponível: ${p.qtd}).`;
+          return;
+        }
+        p.qtd += tipo === "entrada" ? qtd : -qtd;
+        set(K_PROD, produtos);
+        const movs = get(K_MOV);
+        movs.push({ produtoIdx: idx, tipo, qtd, data });
+        set(K_MOV, movs);
+        if (p.qtd < p.minimo)
+          alert(
+            `⚠ Estoque de "${p.nome}" abaixo do mínimo (${p.qtd}/${p.minimo}).`,
+          );
+        document.getElementById("m-qtd").value = "1";
+        document.getElementById("m-data").value = "";
+        renderProdutos();
+        renderMov();
+      };
+
+      function renderGrafico() {
+        const produtos = get(K_PROD);
+        const canvas = document.getElementById("grafico");
+        const ctx = canvas.getContext("2d");
+        canvas.width = canvas.clientWidth || 600;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const corTexto = getComputedStyle(
+          document.documentElement,
+        ).getPropertyValue("--text");
+        if (!produtos.length) {
+          ctx.fillStyle = corTexto;
+          ctx.fillText("Sem produtos cadastrados.", 10, 20);
+          return;
+        }
+        const w = canvas.width,
+          h = canvas.height,
+          pad = 30;
+        const maxQtd =
+          Math.max(...produtos.map((p) => Math.max(p.qtd, p.minimo, 1))) * 1.2;
+        const barW = (w - pad * 2) / produtos.length;
+        produtos.forEach((p, i) => {
+          const x = pad + i * barW;
+          const barH = (p.qtd / maxQtd) * (h - pad * 2);
+          const y = h - pad - barH;
+          ctx.fillStyle = p.qtd < p.minimo ? "#d9364a" : "#3b5bdb";
+          ctx.fillRect(x + 6, y, barW - 12, barH);
+          const minY = h - pad - (p.minimo / maxQtd) * (h - pad * 2);
+          ctx.strokeStyle = "#888";
+          ctx.setLineDash([4, 3]);
+          ctx.beginPath();
+          ctx.moveTo(x + 2, minY);
+          ctx.lineTo(x + barW - 2, minY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = corTexto;
+          ctx.font = "11px monospace";
+          ctx.fillText(p.nome.slice(0, 10), x + 4, h - 10);
+          ctx.fillText(String(p.qtd), x + barW / 2 - 6, y - 4);
+        });
+      }
+      window.addEventListener("resize", renderGrafico);
+
+      document
+        .getElementById("busca")
+        .addEventListener("input", renderProdutos);
+      document
+        .getElementById("soBaixo")
+        .addEventListener("change", renderProdutos);
+
+      renderProdutos();
+      renderMov();
+    </script>
+  </body>
+</html>

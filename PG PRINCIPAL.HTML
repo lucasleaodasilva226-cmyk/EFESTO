@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>INFERNUS — Controle Financeiro</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
+     />
+    <link rel="stylesheet" href="PG PRINCIPAL CSS/PG.CSS" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #77dd77;
+        color: #333;
+        background: url("../img/image.png") no-repeat center center fixed;
+        background-size: cover;
+        font-family: "Inter", sans-serif;
+        color: #241f16;
+        padding: 28px 32px 40px;
+      }
+      input,
+      select {
+        font-family: "Inter", sans-serif;
+      }
+      input:focus,
+      select:focus {
+        outline: 2px solid #2f6b4f;
+        outline-offset: 1px;
+      }
+      button:focus-visible {
+        outline: 2px solid #2f6b4f;
+        outline-offset: 2px;
+      }
+      .row-hover:hover {
+        background: #f1ebdb !important;
+      }
+      .del-btn {
+        opacity: 0;
+        transition: opacity 0.15s;
+        border: none;
+        background: transparent;
+        color: #b3492d;
+        cursor: pointer;
+        padding: 4px;
+        display: inline-flex;
+      }
+      .row-hover:hover .del-btn {
+        opacity: 1;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #d8d2c2;
+        border-radius: 4px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #241f16;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .book-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: #1b3b2c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .book-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      h1 {
+        font-family: "Fraunces", serif;
+        font-size: 26px;
+        font-weight: 600;
+        margin: 0;
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+      }
+      .subtitle {
+        margin: 2px 0 0;
+        font-size: 12.5px;
+        color: #6b6350;
+      }
+      .month-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .month-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        border: 1px solid #d8d2c2;
+        background: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        color: #241f16;
+        line-height: 1;
+      }
+      .month-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13.5px;
+        min-width: 140px;
+        text-align: center;
+        display: inline-block;
+      }
+
+      .summary-strip {
+        display: flex;
+        align-items: stretch;
+        background: #fff;
+        border: 1px solid #d8d2c2;
+        border-radius: 10px;
+        margin-bottom: 22px;
+        overflow: hidden;
+      }
+      .summary-card {
+        flex: 1;
+        padding: 14px 20px;
+      }
+      .summary-divider {
+        width: 1px;
+        background: #e4decc;
+      }
+      .summary-top {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+      .summary-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .summary-value {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 22px;
+        font-weight: 600;
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      .left-col {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .panel {
+        background: #fff;
+        border: 1px solid #d8d2c2;
+        border-radius: 10px;
+        padding: 18px;
+      }
+      .panel-title {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 14px;
+      }
+
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      label.field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-size: 12.5px;
+        color: #6b6350;
+        font-weight: 500;
+      }
+      .input {
+        border: 1px solid #d8d2c2;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 14px;
+        color: #241f16;
+        background: #fdfcf8;
+        width: 100%;
+      }
+      .tipo-toggle {
+        display: flex;
+        gap: 6px;
+      }
+      .tipo-btn {
+        flex: 1;
+        padding: 8px 0;
+        border-radius: 6px;
+        border: 1px solid #d8d2c2;
+        background: #fdfcf8;
+        color: #6b6350;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .tipo-btn.active-despesa {
+        background: #b3492d;
+        color: #fff;
+        border-color: #b3492d;
+      }
+      .tipo-btn.active-receita {
+        background: #2f6b4f;
+        color: #fff;
+        border-color: #2f6b4f;
+      }
+      .add-btn {
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: #1b3b2c;
+        color: #faf7ef;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 0;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .empty-text {
+        font-size: 13px;
+        color: #6b6350;
+        margin: 0;
+      }
+
+      .cat-breakdown {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .chart-wrap {
+        width: 120px;
+        height: 120px;
+        flex-shrink: 0;
+      }
+      .legend-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12.5px;
+      }
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .legend-name {
+        flex: 1;
+      }
+      .legend-value {
+        font-family: "IBM Plex Mono", monospace;
+        color: #6b6350;
+        font-size: 12px;
+      }
+
+      .panel-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .saving-tag {
+        font-size: 11.5px;
+        color: #8a8578;
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        margin-top: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+      }
+      th {
+        text-align: left;
+        padding: 8px 10px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #8a8578;
+        border-bottom: 1.5px solid #241f16;
+        font-weight: 600;
+      }
+      td {
+        padding: 9px 10px;
+        vertical-align: middle;
+      }
+      tr.data-row {
+        border-bottom: 1px solid #ede7d6;
+      }
+      .cat-pill {
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11.5px;
+        font-weight: 600;
+      }
+      .empty-row {
+        padding: 22px 10px;
+        text-align: center;
+        color: #8a8578;
+        font-size: 13px;
+      }
+
+      footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 11.5px;
+        color: #b0a990;
+      }
+
+      @media (max-width: 760px) {
+        .main-grid {
+          grid-template-columns: 1fr;
+        }
+        body {
+          padding: 20px 14px 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+   <head class="topo-menu">
+     <a href="index.html" class="butao">LOGIN</a>
+     <a href="AGENDA/AGENDA.HTML" class="botao">📅</a>
+     <a href="/01/01.HTML" class="botao"> 📦</a>
+   </head>
+    <div class="header">
+      <div class="header-left">
+        <div class="book-icon" id="bookIcon">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#FAF7EF"
+            stroke-width="1.6"
+          >
+            <path
+              d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-1"
+            />
+            <path d="M3 5v14" />
+            <circle cx="17" cy="12" r="1.5" />
+          </svg>
+        </div>
+        <div>
+          <h1>Livro-Razão 💸</h1>
+          <p class="subtitle">controle pessoal de receitas e despesas</p>
+        </div>
+      </div>
+      <div class="month-nav">
+        <button class="month-btn" id="prevMonth" aria-label="Mês anterior">
+          ‹
+        </button>
+        <span class="month-label" id="monthLabel"></span>
+        <button class="month-btn" id="nextMonth" aria-label="Próximo mês">
+          ›
+        </button>
+      </div>
+    </div>
+
+    <section class="summary-strip">
+      <div class="summary-card">
+        <div class="summary-top">
+          <span class="summary-label" style="color: #2f6b4f">Receitas</span>
+        </div>
+        <span class="summary-value" id="valReceitas" style="color: #1b3b2c"
+          >R$ 0,00</span
+        >
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-card">
+        <div class="summary-top">
+          <span class="summary-label" style="color: #b3492d">Despesas</span>
+        </div>
+        <span class="summary-value" id="valDespesas" style="color: #7a2e1b"
+          >R$ 0,00</span
+        >
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-card">
+        <div class="summary-top">
+          <span class="summary-label" id="labelSaldo" style="color: #2f6b4f"
+            >Saldo do mês</span
+          >
+        </div>
+        <span class="summary-value" id="valSaldo" style="color: #1b3b2c"
+          >R$ 0,00</span
+        >
+      </div>
+    </section>
+
+    <main class="main-grid">
+      <div class="left-col">
+        <div class="panel">
+          <h2 class="panel-title">Novo lançamento</h2>
+          <div class="form-grid">
+            <label class="field"
+              >Data
+              <input class="input" type="date" id="fData" />
+            </label>
+            <label class="field"
+              >Descrição
+              <input
+                class="input"
+                type="text"
+                id="fDescricao"
+                placeholder="ex.: supermercado"
+              />
+            </label>
+            <label class="field"
+              >Categoria
+              <select class="input" id="fCategoria"></select>
+            </label>
+            <label class="field"
+              >Tipo
+              <div class="tipo-toggle">
+                <button
+                  class="tipo-btn active-despesa"
+                  id="btnDespesa"
+                  type="button"
+                >
+                  Despesa
+                </button>
+                <button class="tipo-btn" id="btnReceita" type="button">
+                  Receita
+                </button>
+              </div>
+            </label>
+            <label class="field"
+              >Valor (R$)
+              <input
+                class="input"
+                type="text"
+                inputmode="decimal"
+                id="fValor"
+                placeholder="0,00"
+                style="font-family: &quot;IBM Plex Mono&quot;, monospace"
+              />
+            </label>
+            <button class="add-btn" id="btnAdd" type="button">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Adicionar
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="panel-title">Despesas por categoria</h2>
+          <div id="catEmpty" class="empty-text">
+            Sem despesas registradas neste mês.
+          </div>
+          <div id="catBreakdown" class="cat-breakdown" style="display: none">
+            <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+            <ul class="legend-list" id="legendList"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header-row">
+          <h2 class="panel-title" id="tableTitle">Lançamentos</h2>
+          <span class="saving-tag" id="countTag">0 lançamento(s)</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th style="text-align: right">Valor</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      seus dados ficam salvos neste navegador, neste computador — ninguém mais
+      tem acesso
+    </footer>
+
+    <script>
+      const CATEGORIAS = [
+        "Moradia",
+        "Alimentação",
+        "Transporte",
+        "Saúde/remedios",
+        "Lazer",
+        "Educação",
+        "feira/mercado",
+        "Assinaturas",
+        "Salário",
+        "Freelance",
+        "Outros",
+        "Cartão de credito",
+        "manutenção",
+        "compras aleatorias",
+        "pagamentos via pix"
+      ];
+      const CORES = {
+        Moradia: "#8C6E4B",
+        Alimentação: "#B3492D",
+        Transporte: "#4A6B8A",
+        Saúde: "#7A4C7A",
+        Lazer: "#C08A2E",
+        Educação: "#4C7A5A",
+        Mercado: "#A65D3F",
+        Assinaturas: "#6B6B4C",
+        Salário: "#2F6B4F",
+        Freelance: "#3F7D6B",
+        Outros: "#7A7368",
+        "Cartão de credito":"#b0f2c2",
+        anutenção:"#ffb347",
+        "comprasaleatorias":"#7f00ff"
+      };
+      const MESES = [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro",
+      ];
+      const STORAGE_KEY = "livro_razao_transacoes_v1";
+
+      let transacoes = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      let tipoAtual = "despesa";
+      let pieChartInstance = null;
+
+      const hoje = new Date();
+      let mesRef = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
+
+      function formatBRL(v) {
+        return v.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
+      }
+      function uid() {
+        return (
+          Math.random().toString(36).slice(2, 10) + Date.now().toString(36)
+        );
+      }
+      function todayISO() {
+        const d = new Date();
+        const tz = d.getTimezoneOffset() * 60000;
+        return new Date(d - tz).toISOString().slice(0, 10);
+      }
+      function salvar() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(transacoes));
+      }
+
+      // popula select de categorias
+      const selCat = document.getElementById("fCategoria");
+      CATEGORIAS.forEach((c) => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        selCat.appendChild(opt);
+      });
+      selCat.value = "Mercado";
+      document.getElementById("fData").value = todayISO();
+
+      document
+        .getElementById("btnDespesa")
+        .addEventListener("click", () => setTipo("despesa"));
+      document
+        .getElementById("btnReceita")
+        .addEventListener("click", () => setTipo("receita"));
+      function setTipo(t) {
+        tipoAtual = t;
+        document
+          .getElementById("btnDespesa")
+          .classList.toggle("active-despesa", t === "despesa");
+        document
+          .getElementById("btnReceita")
+          .classList.toggle("active-receita", t === "receita");
+      }
+
+      document.getElementById("btnAdd").addEventListener("click", addTransacao);
+      document.getElementById("fValor").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addTransacao();
+      });
+      document.getElementById("fDescricao").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addTransacao();
+      });
+
+      function addTransacao() {
+        const data = document.getElementById("fData").value || todayISO();
+        const descricao = document.getElementById("fDescricao").value.trim();
+        const categoria = selCat.value;
+        const valorRaw = document.getElementById("fValor").value;
+        const valor = parseFloat(String(valorRaw).replace(",", "."));
+        if (!descricao || isNaN(valor) || valor <= 0) return;
+
+        transacoes.push({
+          id: uid(),
+          data,
+          descricao,
+          categoria,
+          tipo: tipoAtual,
+          valor,
+        });
+        transacoes.sort((a, b) => (a.data < b.data ? 1 : -1));
+        salvar();
+        document.getElementById("fDescricao").value = "";
+        document.getElementById("fValor").value = "";
+        render();
+      }
+
+      function removerTransacao(id) {
+        transacoes = transacoes.filter((t) => t.id !== id);
+        salvar();
+        render();
+      }
+      window.removerTransacao = removerTransacao;
+
+      document
+        .getElementById("prevMonth")
+        .addEventListener("click", () => mudarMes(-1));
+      document
+        .getElementById("nextMonth")
+        .addEventListener("click", () => mudarMes(1));
+      function mudarMes(delta) {
+        const [ano, mes] = mesRef.split("-").map(Number);
+        const d = new Date(ano, mes - 1 + delta, 1);
+        mesRef = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        render();
+      }
+
+      function render() {
+        const [ano, mesNum] = mesRef.split("-").map(Number);
+        const mesLabel = `${MESES[mesNum - 1]} de ${ano}`;
+        document.getElementById("monthLabel").textContent = mesLabel;
+        document.getElementById("tableTitle").textContent =
+          `Lançamentos de ${mesLabel}`;
+
+        const doMes = transacoes.filter((t) => t.data.slice(0, 7) === mesRef);
+
+        const receitas = doMes
+          .filter((t) => t.tipo === "receita")
+          .reduce((s, t) => s + t.valor, 0);
+        const despesas = doMes
+          .filter((t) => t.tipo === "despesa")
+          .reduce((s, t) => s + t.valor, 0);
+        const saldo = receitas - despesas;
+
+        document.getElementById("valReceitas").textContent =
+          formatBRL(receitas);
+        document.getElementById("valDespesas").textContent =
+          formatBRL(despesas);
+        document.getElementById("valSaldo").textContent = formatBRL(saldo);
+        document.getElementById("valSaldo").style.color =
+          saldo >= 0 ? "#1B3B2C" : "#7A2E1B";
+        document.getElementById("labelSaldo").style.color =
+          saldo >= 0 ? "#2F6B4F" : "#B3492D";
+
+        document.getElementById("countTag").textContent =
+          `${doMes.length} lançamento(s)`;
+
+        // tabela
+        const tbody = document.getElementById("tbody");
+        tbody.innerHTML = "";
+        if (doMes.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhum lançamento neste mês ainda. Adicione o primeiro ao lado.</td></tr>`;
+        } else {
+          doMes.forEach((t) => {
+            const tr = document.createElement("tr");
+            tr.className = "data-row row-hover";
+            const dataFmt = new Date(t.data + "T00:00:00").toLocaleDateString(
+              "pt-BR",
+              { day: "2-digit", month: "2-digit" },
+            );
+            const cor = CORES[t.categoria] || "#7A7368";
+            const sinal = t.tipo === "receita" ? "+" : "−";
+            const corValor = t.tipo === "receita" ? "#2F6B4F" : "#B3492D";
+            tr.innerHTML = `
+        <td>${dataFmt}</td>
+        <td>${escapeHtml(t.descricao)}</td>
+        <td><span class="cat-pill" style="background:${cor}22;color:${cor}">${t.categoria}</span></td>
+        <td style="text-align:right;font-family:'IBM Plex Mono', monospace;color:${corValor}">${sinal} ${formatBRL(t.valor)}</td>
+        <td style="text-align:center">
+          <button class="del-btn" onclick="removerTransacao('${t.id}')" aria-label="Remover lançamento">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+          </button>
+        </td>`;
+            tbody.appendChild(tr);
+          });
+        }
+
+        // categorias
+        const mapa = {};
+        doMes
+          .filter((t) => t.tipo === "despesa")
+          .forEach((t) => {
+            mapa[t.categoria] = (mapa[t.categoria] || 0) + t.valor;
+          });
+        const porCategoria = Object.entries(mapa)
+          .map(([nome, valor]) => ({ nome, valor }))
+          .sort((a, b) => b.valor - a.valor);
+
+        const catEmpty = document.getElementById("catEmpty");
+        const catBreak = document.getElementById("catBreakdown");
+        if (porCategoria.length === 0) {
+          catEmpty.style.display = "block";
+          catBreak.style.display = "none";
+          if (pieChartInstance) {
+            pieChartInstance.destroy();
+            pieChartInstance = null;
+          }
+        } else {
+          catEmpty.style.display = "none";
+          catBreak.style.display = "flex";
+          const legendList = document.getElementById("legendList");
+          legendList.innerHTML = "";
+          porCategoria.slice(0, 6).forEach((c) => {
+            const li = document.createElement("li");
+            li.className = "legend-item";
+            const cor = CORES[c.nome] || "#7A7368";
+            li.innerHTML = `<span class="legend-dot" style="background:${cor}"></span><span class="legend-name">${c.nome}</span><span class="legend-value">${formatBRL(c.valor)}</span>`;
+            legendList.appendChild(li);
+          });
+
+          const ctx = document.getElementById("pieChart").getContext("2d");
+          const data = {
+            labels: porCategoria.map((c) => c.nome),
+            datasets: [
+              {
+                data: porCategoria.map((c) => c.valor),
+                backgroundColor: porCategoria.map(
+                  (c) => CORES[c.nome] || "#7A7368",
+                ),
+                borderColor: "#FAF7EF",
+                borderWidth: 2,
+              },
+            ],
+          };
+          if (pieChartInstance) {
+            pieChartInstance.data = data;
+            pieChartInstance.update();
+          } else if (window.Chart) {
+            pieChartInstance = new Chart(ctx, {
+              type: "doughnut",
+              data,
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "55%",
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: { label: (item) => formatBRL(item.parsed) },
+                  },
+                },
+              },
+            });
+          }
+        }
+      }
+
+      function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      render();
+    </script>
+
+  </body>
+  <footer>
+    </h3>@lusqueta_X
+  </footer>
+</html>

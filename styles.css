@@ -1,0 +1,171 @@
+@import url("https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Bitcount Prop Single", system-ui;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: url("./img/image.png") no-repeat center center fixed;
+  background-size: cover;
+}
+
+.container {
+  width: 400px;
+  max-width: 90vw;
+  background-color: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: white;
+  padding: 30px 40px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.container h1 {
+  font-size: 36px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.inputBox {
+  position: relative;
+  width: 100%;
+  height: 45px;
+  margin: 30px 0;
+}
+
+.inputBox input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: 2px solid white;
+  border-radius: 40px;
+  font-size: 16px;
+  color: white;
+  padding: 0 45px 0 20px;
+  outline: none;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.inputBox input:focus {
+  border-color: #ffd60a;
+  box-shadow: 0 0 8px rgba(255, 214, 10, 0.4);
+}
+
+.inputBox input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.inputBox i {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: white;
+  pointer-events: none;
+}
+
+.remember-forgot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  margin: -15px 0 20px;
+}
+
+.remember-forgot label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.remember-forgot label input {
+  margin-right: 8px;
+  accent-color: #ffd60a;
+}
+
+.remember-forgot a {
+  text-decoration: none;
+  color: white;
+}
+
+.remember-forgot a:hover {
+  text-decoration: underline;
+}
+
+.submit {
+  width: 100%;
+  height: 45px;
+  background: white;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(255, 255, 0, 0.2);
+  transition:
+    background-color 0.3s,
+    color 0.3s,
+    border-color 0.3s;
+}
+
+.submit:hover {
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  color: white;
+}
+
+.register-link {
+  font-size: 14px;
+  text-align: center;
+  margin: 20px 0 5px;
+}
+
+.register-link a {
+  color: #ffd60a;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 25px 25px;
+  }
+
+  .container h1 {
+    font-size: 28px;
+  }
+}
+a[href] :hover {
+  font-size: 14px;
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: transparent;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  font-weight: 500;
+  box-shadow: 0 0 10px rgba(0, 0, 255, 0.2);
+}
+a[href]:hover {
+  background-color: skyblue;
+  color: black;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+}

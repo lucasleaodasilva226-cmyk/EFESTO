@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Sistema Integrado de Almoxarifado e Logística</title>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      :root {
+        color-scheme: light;
+      }
+      body {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f4f6f9;
+        color: #333;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      .sidebar {
+        width: 260px;
+        background-color: #1e293b;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+      .sidebar h2 {
+        padding: 20px;
+        font-size: 1.2rem;
+        background: #0f172a;
+        text-align: center;
+      }
+      .sidebar nav a {
+        display: block;
+        color: #94a3b8;
+        padding: 15px 20px;
+        text-decoration: none;
+        border-bottom: 1px solid #334155;
+        transition: 0.3s;
+      }
+      .sidebar nav a:hover,
+      .sidebar nav a.active {
+        background-color: #2563eb;
+        color: #fff;
+      }
+
+      .content {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+        max-width: 100%;
+      }
+      .card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      h3 {
+        margin-bottom: 15px;
+        color: #0f172a;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+      .form-group label {
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+      .form-group input,
+      .form-group select {
+        padding: 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        width: 100%;
+      }
+
+      .scan-field {
+        display: flex;
+        gap: 8px;
+      }
+      .scan-field input {
+        flex: 1;
+        min-width: 0;
+      }
+      .scan-btn {
+        flex-shrink: 0;
+        background-color: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 0 14px;
+        cursor: pointer;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+      .scan-btn:hover {
+        background-color: #15803d;
+      }
+
+      .btn {
+        background-color: #2563eb;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 15px;
+      }
+      .btn:hover {
+        background-color: #1d4ed8;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+      }
+      th {
+        background-color: #f8fafc;
+      }
+
+      .scanner-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.75);
+        z-index: 999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .scanner-overlay.open {
+        display: flex;
+      }
+      .scanner-box {
+        background: #fff;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 420px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .scanner-box header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .scanner-box header h4 {
+        color: #0f172a;
+        font-size: 1rem;
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        color: #64748b;
+        line-height: 1;
+      }
+      #reader {
+        width: 100%;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .scanner-status {
+        font-size: 0.85rem;
+        color: #64748b;
+        text-align: center;
+        min-height: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <h2>📦 MENU</h2>
+      <nav>
+        <a href="#estq" class="active">Almoxarifado &amp; Estoque</a>
+        <a href="/01/nf.html">Entrada / Nota Fiscal</a>
+        <a href="#saida">Baixa / Saída de Material</a>
+        <a href="#expedicao">Expedição &amp; Motoristas</a>
+        <a href="#rotas">Calculadora de Rotas</a>
+        <a href="#relatorios">Relatórios de Giro</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <section class="card">
+        <h3>Cadastrar Novo Produto / Item</h3>
+        <form class="form-grid" id="produtoForm">
+          <div class="form-group">
+            <label>SKU (Código Único)</label>
+            <input type="text" placeholder="Ex: RUA1-EST5-PAR3-001" />
+          </div>
+
+          <div class="form-group">
+            <label>Código de Barras / QR Code</label>
+            <div class="scan-field">
+              <input
+                type="text"
+                id="codigoInput"
+                placeholder="Escaneie ou digite"
+              />
+              <button type="button" class="scan-btn" id="abrirScanner">
+                📷 Escanear
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Nome do Produto</label>
+            <input type="text" placeholder="Descrição do item" />
+          </div>
+          <div class="form-group">
+            <label>Endereçamento (Rua / Estante / Prateleira)</label>
+            <input
+              type="text"
+              placeholder="Ex: Rua 1, Estante 5, Prateleira 3"
+            />
+          </div>
+          <div class="form-group">
+            <label>Quantidade Inicial</label>
+            <input type="number" min="0" value="0" />
+          </div>
+          <div class="form-group">
+            <label>Foto do Produto</label>
+            <input type="file" accept="image/*" />
+          </div>
+        </form>
+        <button class="btn">Salvar Produto</button>
+      </section>
+
+      <section class="card">
+        <h3>Itens Armazenados</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Produto</th>
+                <th>Endereço</th>
+                <th>Qtd</th>
+                <th>Foto</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>PRD-0091</strong></td>
+                <td>Rolamento Industrial 6204</td>
+                <td>Rua 1, Estante 5, Prat. 3</td>
+                <td>45 un</td>
+                <td>📷 Ver foto</td>
+                <td>
+                  <button
+                    style="
+                      color: #2563eb;
+                      background: none;
+                      border: none;
+                      cursor: pointer;
+                    "
+                  >
+                    Editar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div class="scanner-overlay" id="scannerOverlay">
+      <div class="scanner-box">
+        <header>
+          <h4>Aponte a câmera para o código</h4>
+          <button class="close-btn" id="fecharScanner">✕</button>
+        </header>
+        <div id="reader"></div>
+        <div class="scanner-status" id="scannerStatus">Iniciando câmera...</div>
+      </div>
+    </div>
+
+    <script>
+      const overlay = document.getElementById("scannerOverlay");
+      const statusEl = document.getElementById("scannerStatus");
+      const codigoInput = document.getElementById("codigoInput");
+      let html5QrCode = null;
+
+      function formatosSuportados() {
+        const F = Html5QrcodeSupportedFormats;
+        return [
+          F.QR_CODE,
+          F.EAN_13,
+          F.EAN_8,
+          F.CODE_128,
+          F.CODE_39,
+          F.UPC_A,
+          F.UPC_E,
+          F.ITF,
+        ];
+      }
+
+      async function abrirScanner() {
+        overlay.classList.add("open");
+        statusEl.textContent = "Iniciando câmera...";
+
+        if (!window.Html5Qrcode) {
+          statusEl.textContent =
+            "Não foi possível carregar a biblioteca de leitura. Verifique sua conexão.";
+          return;
+        }
+
+        html5QrCode = new Html5Qrcode("reader", {
+          formatsToSupport: formatosSuportados(),
+          verbose: false,
+        });
+
+        const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+        try {
+          await html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText) => {
+              codigoInput.value = decodedText;
+              statusEl.textContent = "Código lido: " + decodedText;
+              fecharScanner();
+            },
+            () => {
+              /* erro de leitura por frame, ignorado silenciosamente */
+            },
+          );
+          statusEl.textContent = "Aponte para o código de barras ou QR code";
+        } catch (err) {
+          statusEl.textContent =
+            "Não foi possível acessar a câmera. Verifique as permissões do navegador.";
+        }
+      }
+
+      async function fecharScanner() {
+        if (html5QrCode) {
+          try {
+            const state = html5QrCode.getState();
+            if (state === Html5QrcodeScannerState.SCANNING) {
+              await html5QrCode.stop();
+            }
+            await html5QrCode.clear();
+          } catch (e) {
+            /* ignora erros ao encerrar */
+          }
+          html5QrCode = null;
+        }
+        overlay.classList.remove("open");
+      }
+
+      document
+        .getElementById("abrirScanner")
+        .addEventListener("click", abrirScanner);
+      document
+        .getElementById("fecharScanner")
+        .addEventListener("click", fecharScanner);
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) fecharScanner();
+      });
+    </script>
+  </body>
+</html>
